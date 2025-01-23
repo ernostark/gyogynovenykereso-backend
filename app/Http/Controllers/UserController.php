@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -48,7 +49,8 @@ class UserController extends Controller
         }
 
         $user = $request->user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $expiresAt = Carbon::now()->addDay();
+        $token = $user->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
 
         return response()->json([
             'message' => 'Sikeres bejelentkezés!',
@@ -61,7 +63,9 @@ class UserController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Sikeres kijelentkezés!'], 200);
+        return response()->json([
+            'message' => 'Sikeresen kijelentkeztél!',
+        ]);
     }
 
     public function updateProfile(UpdateUserProfile $request)

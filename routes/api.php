@@ -1,15 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::controller(UserController::class)->group(function () {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout')->middleware('auth:sanctum');
+    Route::get('/profile', 'profile')->middleware('auth:sanctum');
+});
 
-Route::post( "/register", [ UserController::class, "register" ] );
-Route::post( "/login", [ UserController::class, "login" ] );
-Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-Route::middleware('auth:sanctum')->put('/profile', [UserController::class, 'updateProfile']);

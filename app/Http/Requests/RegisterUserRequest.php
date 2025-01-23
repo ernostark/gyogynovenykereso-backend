@@ -54,6 +54,7 @@ class RegisterUserRequest extends FormRequest
             "password.required" => "Adjon meg egy jelszót!",
             "password.min" => "Túl rövid jelszó, minimum 8 karakter!",
             "password.regex" => "A jelszónak tartalmaznia kell kis- és nagybetűt és számot!",
+            "confirm_password.required" => "Kérjük, erősítse meg a jelszavát!",
             "confirm_password.same" => "Nem egyezik a két jelszó!"
 
         ];
