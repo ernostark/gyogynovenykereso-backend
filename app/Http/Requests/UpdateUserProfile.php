@@ -21,10 +21,9 @@ class UpdateUserProfile extends FormRequest
      */
     public function rules(): array
     {
-        return [            
+        return [
             'password' => [
                 "nullable",
-                "required",
                 "min:8",
                 "regex:/[a-z]/",
                 "regex:/[A-Z]/",
