@@ -7,6 +7,5 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
     Route::post('/logout', 'logout')->middleware('auth:sanctum');
-    Route::get('/profile', 'profile')->middleware('auth:sanctum');
+    Route::put('/profile', 'updateProfile')->middleware('auth:sanctum');
 });
-

@@ -70,13 +70,27 @@ class UserController extends Controller
 
     public function updateProfile(UpdateUserProfile $request)
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
+            $data = $request->validated();
 
-        $user->update($request->validated());
+            if (!empty($data['password'])) {
+                $data['password'] = bcrypt($data['password']);
+            }
 
-        return response()->json([
-            'message' => 'Profil sikeresen frissítve!',
-            'user' => $user,
-        ], 200);
+            $user->update($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil sikeresen frissítve!',
+                'user' => $user,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hiba történt a profil frissítése során.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

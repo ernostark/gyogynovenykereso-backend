@@ -21,9 +21,7 @@ class UpdateUserProfile extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $this->user()->id,
+        return [            
             'password' => [
                 "nullable",
                 "required",
@@ -33,20 +31,28 @@ class UpdateUserProfile extends FormRequest
                 "regex:/[0-9]/",
                 "confirmed"
             ],
-            'country' => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
-            'city' => 'nullable|string|max:100',
-            'street' => 'nullable|string|max:255',
-            'address_line_2' => 'nullable|string|max:255',
+            'country' => 'nullable|required|string|max:30',
+            'postal_code' => 'nullable|required|string|max:10',
+            'city' => 'nullable|required|string|max:40',
+            'street' => 'nullable|required|string|max:80',
+            'address_line_2' => 'nullable|string|max:80'
         ];
     }
 
     public function messages()
     {
         return [
-            'email.unique' => 'Hibás email cím!',
             'password.confirmed' => 'A jelszavak nem egyeznek!',
             'password.min' => 'A jelszónak legalább 8 karakter hosszúnak kell lennie!',
+            'country.required' => 'Ország mező kitöltése kötelező!',
+            'country.max' => 'Ország mezőben maximum 30 karakter lehet!',
+            'postal_code.required' => 'Irányítószám mező kitöltése kötelező!',
+            'postal_code.max' => 'Irányítószám mezőben maximum 10 karakter lehet!',
+            'city.required' => 'Város mező kitöltése kötelező!',
+            'city.max' => 'Város mezőben maximum 40 karakter lehet!',
+            'street.required' => 'Utca, házszám mező kitöltése kötelező!',
+            'street.max' => 'Utca, házszám mezőben maximum 80 karakter lehet!',
+            'address_line_2.max' => 'Egyéb címadatok mezőben maximum 80 lehet!'
         ];
     }
 }
