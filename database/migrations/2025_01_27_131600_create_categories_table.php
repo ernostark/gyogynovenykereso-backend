@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Kötelező
-            $table->string('slug')->unique(); // Egyedi azonosító
-            $table->text('description')->nullable(); // Opcionális leírás
-            $table->unsignedBigInteger('parent_id')->nullable(); // Szülő kategória
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');

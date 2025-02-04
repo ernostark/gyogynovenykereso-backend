@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
-            $table->id(); // Egyedi azonosító
-            $table->unsignedBigInteger('post_id'); // Kapcsolódó blogbejegyzés
-            $table->unsignedBigInteger('user_id')->nullable(); // Kapcsolódó felhasználó (opcionális)
-            $table->text('content'); // Hozzászólás szövege
-            $table->enum('status', ['approved', 'pending', 'spam'])->default('pending'); // Státusz
-            $table->timestamps(); // Létrehozás és frissítés időbélyeg
+            $table->id();
+            $table->unsignedBigInteger('post_id');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->text('content');
+            $table->enum('status', ['approved', 'pending', 'spam'])->default('pending');
+            $table->timestamps();
         
-            // Külső kulcsok
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });

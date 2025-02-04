@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tags', function (Blueprint $table) {
-            $table->id(); // Egyedi azonosító
-            $table->string('name'); // Címke neve
-            $table->string('slug')->unique(); // URL-barát név
-            $table->timestamps(); // Létrehozás és frissítés időbélyeg
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->timestamps();
         });
         
     }

@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->id(); // Egyedi azonosító
-            $table->unsignedBigInteger('post_id')->nullable(); // Kapcsolódó blogbejegyzés (opcionális)
-            $table->string('url'); // Médiafájl URL-je
-            $table->string('type'); // Fájl típusa (pl. image, video, stb.)
-            $table->timestamps(); // Létrehozás és frissítés időbélyeg
+            $table->id();
+            $table->unsignedBigInteger('post_id')->nullable();
+            $table->string('url');
+            $table->string('type');
+            $table->timestamps();
         
-            // Külső kulcs
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
         });
         
