@@ -32,4 +32,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     });
 });
 
-Route::get('posts/search-by-diseases', [PostController::class, 'searchByDiseases']);
+Route::post('posts/search-by-diseases', [PostController::class, 'searchByDiseases']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::get('/posts/{id}/check-access', [PostController::class, 'checkAccess']);

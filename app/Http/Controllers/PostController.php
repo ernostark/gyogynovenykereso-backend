@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage as FacadesStorage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
-
 class PostController extends Controller
 {
 
@@ -38,19 +36,39 @@ class PostController extends Controller
     }
     public function show($id)
     {
-        $post = Post::with('author')->find($id);
+        try {
+            $post = Post::with(['category', 'author'])->findOrFail($id);
 
-        if (!$post) {
+            $isAdmin = Auth::guard('admin')->check();
+
+            if (!$isAdmin && $post->status !== 'published') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A bejegyzés nem megtekinthető'
+                ], 403);
+            }
+
+            if ($post->image_path) {
+                $post->image_path = asset('storage/' . $post->image_path);
+            }
+
+            if ($post->diseases) {
+                if (is_string($post->diseases)) {
+                    $post->diseases = json_decode($post->diseases);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'post' => $post,
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bejegyzés nem található.',
-            ], 404);
+                'message' => 'Hiba történt a bejegyzés betöltése során',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'post' => $post,
-        ]);
     }
 
     public function store(Request $request)
@@ -133,13 +151,20 @@ class PostController extends Controller
 
             $post = Post::findOrFail($id);
 
+            if ($request->has('diseases')) {
+                $diseases = $request->input('diseases');
+                if (is_string($diseases)) {
+                    $validatedData['diseases'] = $diseases;
+                }
+            }
+
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'content' => 'required|string',
                 'category_id' => 'nullable|exists:categories,id',
                 'status' => 'required|in:draft,published,archived',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'diseases' => 'nullable|string',
+                'diseases' => 'nullable'
             ]);
 
             if (isset($validatedData['image_path'])) {
@@ -176,8 +201,6 @@ class PostController extends Controller
             ], 500);
         }
     }
-
-
     public function destroy($id)
     {
         try {
@@ -211,40 +234,45 @@ class PostController extends Controller
 
     public function searchByDiseases(Request $request)
     {
-        $searchTerm = $request->input('diseases');
+        $searchTerms = $request->input('diseases', []);
 
-        if (empty($searchTerm)) {
+        if (empty($searchTerms)) {
             return response()->json([
                 'message' => 'Kérlek adj meg keresési feltételt',
-                'posts' => []
+                'posts'   => []
             ]);
         }
 
-        try {
-            $searchTerms = json_decode($searchTerm, true);
+        $posts = Post::where(function ($query) use ($searchTerms) {
+            foreach ($searchTerms as $disease) {
+                $query->orWhereRaw("JSON_SEARCH(JSON_UNQUOTE(diseases), 'one', ?) IS NOT NULL", [$disease]);
+            }
+        })
+            ->with(['category', 'author'])
+            ->get();
 
-            if (!is_array($searchTerms)) {
-                $searchTerms = [$searchTerm];
+        return response()->json([
+            'success' => true,
+            'posts'   => $posts,
+            'total'   => $posts->count()
+        ]);
+    }
+    public function checkAccess($id)
+    {
+        try {
+            $post = Post::findOrFail($id);
+
+            if (Auth::guard('admin')->check()) {
+                return response()->json(['access' => true]);
             }
 
-            $posts = Post::where(function ($query) use ($searchTerms) {
-                foreach ($searchTerms as $disease) {
-                    $query->orWhereRaw('JSON_CONTAINS(diseases, ?)', [json_encode($disease)]);
-                }
-            })
-                ->with(['category', 'author'])
-                ->get();
+            if ($post->status !== 'published') {
+                return response()->json(['access' => false], 403);
+            }
 
-            return response()->json([
-                'message' => 'Keresés sikeres',
-                'posts' => $posts,
-            ]);
+            return response()->json(['access' => true]);
         } catch (\Exception $e) {
-            Log::error('Hiba a keresés során: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Hiba történt a keresés során',
-                'posts' => []
-            ], 500);
+            return response()->json(['access' => false], 404);
         }
     }
 }

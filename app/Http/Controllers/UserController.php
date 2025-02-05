@@ -37,8 +37,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
-
     public function login(LoginUserRequest $request)
     {
         $request->validated();
@@ -60,14 +58,12 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        /* $request->user()->currentAccessToken()->delete(); */
         $request->user()->tokens()->delete();
 
         return response()->json([
             'message' => 'Sikeresen kijelentkeztél!',
         ]);
     }
-
     public function updateProfile(UpdateUserProfile $request)
     {
         try {
@@ -96,7 +92,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
     public function getProfile(Request $request)
     {
         $user = $request->user();

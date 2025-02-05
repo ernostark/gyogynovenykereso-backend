@@ -43,7 +43,7 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
-        $admin = $request->user(); 
+        $admin = $request->user();
 
         if (!$admin) {
             return response()->json([
