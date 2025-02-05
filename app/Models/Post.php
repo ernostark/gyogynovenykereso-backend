@@ -21,6 +21,7 @@ class Post extends Model
         'status',
         'image_path',
         'diseases',
+        'featured',
     ];
 
     protected $dates = [
@@ -31,6 +32,7 @@ class Post extends Model
 
     protected $casts = [
         'diseases' => 'array',
+        'featured' => 'boolean',
     ];
 
     public function author()

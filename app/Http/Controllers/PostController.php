@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage as FacadesStorage;
 use Illuminate\Support\Str;
+
 class PostController extends Controller
 {
 
@@ -81,6 +83,7 @@ class PostController extends Controller
                 'status' => 'required|in:draft,published,archived',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'diseases' => 'nullable',
+                'featured' => 'boolean'
             ]);
 
             $authorId = Auth::guard('admin')->id();
@@ -116,6 +119,7 @@ class PostController extends Controller
                 'image_path' => $validatedData['image_path'] ?? null,
                 'published_at' => $publishedAt,
                 'diseases' => $diseases,
+                'featured' => $validatedData['featured'] ?? false
             ]);
 
             return response()->json([
@@ -164,7 +168,8 @@ class PostController extends Controller
                 'category_id' => 'nullable|exists:categories,id',
                 'status' => 'required|in:draft,published,archived',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'diseases' => 'nullable'
+                'diseases' => 'nullable',
+                'featured' => 'boolean'
             ]);
 
             if (isset($validatedData['image_path'])) {
@@ -183,6 +188,10 @@ class PostController extends Controller
 
             if ($validatedData['status'] === 'published' && !$post->published_at) {
                 $validatedData['published_at'] = now();
+            }
+
+            if ($request->has('featured')) {
+                $validatedData['featured'] = (bool)$request->input('featured');
             }
 
             $post->update($validatedData);
@@ -248,6 +257,7 @@ class PostController extends Controller
                 $query->orWhereRaw("JSON_SEARCH(JSON_UNQUOTE(diseases), 'one', ?) IS NOT NULL", [$disease]);
             }
         })
+            ->where('status', 'published')
             ->with(['category', 'author'])
             ->get();
 
@@ -273,6 +283,49 @@ class PostController extends Controller
             return response()->json(['access' => true]);
         } catch (\Exception $e) {
             return response()->json(['access' => false], 404);
+        }
+    }
+    public function getFeaturedPosts()
+    {
+        try {
+            $posts = Post::query()
+                ->with(['author', 'category'])
+                ->where('featured', '=', 1)
+                ->where('status', '=', 'published')
+                ->orderBy('created_at', 'desc')
+                ->take(4)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'posts' => $posts
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function getLatestPosts()
+    {
+        try {
+            $posts = Post::query()
+                ->with(['author', 'category'])
+                ->where('status', 'published')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'posts' => $posts
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

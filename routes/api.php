@@ -32,6 +32,10 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     });
 });
 
+Route::get('posts/featured', [PostController::class, 'getFeaturedPosts']);
+Route::get('posts/latest', [PostController::class, 'getLatestPosts']);
 Route::post('posts/search-by-diseases', [PostController::class, 'searchByDiseases']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/posts/{id}/check-access', [PostController::class, 'checkAccess']);
+Route::get('/posts/latest', [PostController::class, 'getLatestPosts']);
+
