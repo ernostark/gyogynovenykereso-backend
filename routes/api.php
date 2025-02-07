@@ -39,3 +39,5 @@ Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/posts/{id}/check-access', [PostController::class, 'checkAccess']);
 Route::get('/posts/latest', [PostController::class, 'getLatestPosts']);
 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}/posts', [CategoryController::class, 'getPosts']);
