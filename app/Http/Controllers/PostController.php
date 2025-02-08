@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage as FacadesStorage;
 use Illuminate\Support\Str;
 
