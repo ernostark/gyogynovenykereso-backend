@@ -267,6 +267,31 @@ class PostController extends Controller
             'total'   => $posts->count()
         ]);
     }
+
+    public function searchInContent(Request $request)
+    {
+        $query = $request->query('q');
+
+        if (!$query) {
+            return response()->json([
+                'message' => 'Kérlek adj meg keresési feltételt!',
+                'posts' => []
+            ]);
+        }
+
+        $posts = Post::where('content', 'LIKE', '%' . $query . '%')
+            ->orWhere('title', 'LIKE', '%' . $query . '%')
+            ->where('status', 'published')
+            ->with(['category', 'author'])
+            ->select('id', 'title', 'excerpt', 'image_path', 'published_at', 'category_id', 'diseases')
+            ->get();
+
+        return response()->json([
+            'message' => 'Keresés sikeres!',
+            'posts' => $posts
+        ]);
+    }
+
     public function checkAccess($id)
     {
         try {
