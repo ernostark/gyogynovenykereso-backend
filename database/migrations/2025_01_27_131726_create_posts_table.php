@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('image_path')->nullable();
             $table->text('excerpt')->nullable();
+            $table->json('diseases')->nullable();
             $table->foreignId('author_id')->constrained('admins')->onDelete('cascade');
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->timestamp('published_at')->nullable();
